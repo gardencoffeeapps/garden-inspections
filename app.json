@@ -1,0 +1,29 @@
+{
+  "expo": {
+    "name": "Garden · Обходы",
+    "slug": "garden-inspections",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "bundleIdentifier": "com.garden.inspections",
+      "supportsTablet": true
+    },
+    "android": { "package": "com.garden.inspections" },
+    "plugins": [
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Garden использует камеру для фото контрольных точек во время обхода.",
+          "recordAudioAndroid": false
+        }
+      ],
+      "expo-secure-store"
+    ],
+    "web": {
+      "name": "Garden · Обходы",
+      "shortName": "Garden",
+      "bundler": "metro"
+    }
+  }
+}
