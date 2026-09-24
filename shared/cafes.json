@@ -1,7 +1,97 @@
 [
   {
+    "name": "Garden · Калинка",
+    "id": "kalinka",
+    "address": ""
+  },
+  {
+    "name": "Garden · Советская",
+    "id": "sovetskaya",
+    "address": ""
+  },
+  {
+    "name": "Garden · Океан",
+    "id": "okean",
+    "address": ""
+  },
+  {
+    "name": "Garden · Парус",
+    "id": "parus",
+    "address": ""
+  },
+  {
+    "name": "Garden · Мельникайте",
+    "id": "melnikayte",
+    "address": ""
+  },
+  {
+    "name": "Garden · Европейский",
+    "id": "evropeyskiy",
+    "address": ""
+  },
+  {
+    "name": "Garden · Новин",
+    "id": "novin",
+    "address": ""
+  },
+  {
+    "name": "Garden · Панорама",
+    "id": "panorama",
+    "address": ""
+  },
+  {
+    "name": "Garden · Газпром",
+    "id": "gazprom",
+    "address": ""
+  },
+  {
+    "name": "Garden · Драмтеатр",
+    "id": "dramteatr",
+    "address": ""
+  },
+  {
+    "name": "Garden · Преображенский",
+    "id": "preobrazhenskiy",
+    "address": ""
+  },
+  {
+    "name": "Garden · Арсиб",
+    "id": "arsib",
+    "address": ""
+  },
+  {
     "name": "Garden · Свердлова",
     "id": "sverdlova",
+    "address": ""
+  },
+  {
+    "name": "Garden · Осипенко",
+    "id": "osipenko",
+    "address": ""
+  },
+  {
+    "name": "Garden · Видный",
+    "id": "vidnyy",
+    "address": ""
+  },
+  {
+    "name": "Garden · Гагарина",
+    "id": "gagarina",
+    "address": ""
+  },
+  {
+    "name": "Garden · Ворлд Класс",
+    "id": "world-class",
+    "address": ""
+  },
+  {
+    "name": "Garden · Софи-лэнд",
+    "id": "sofi-land",
+    "address": ""
+  },
+  {
+    "name": "Garden · Домашний",
+    "id": "domashniy",
     "address": ""
   }
 ]
