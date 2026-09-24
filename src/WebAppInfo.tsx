@@ -23,8 +23,8 @@ export function WebConnectionStatus() {
     <View accessibilityRole="alert" style={styles.offline}>
       <Text style={styles.title}>Нет подключения к сети</Text>
       <Text style={styles.text}>
-        Для сохранения ответов, загрузки фото и отправки обхода нужен интернет.
-        Ранее сохранённые шаги остаются на сервере.
+        Уже открытый Garden продолжит сохранять ответы на этом устройстве.
+        Интернет понадобится, чтобы открыть ссылку заново на другом устройстве.
       </Text>
     </View>
   );
@@ -108,8 +108,8 @@ export function WebInstallCard() {
       </Text>
       {message !== "" && <Text style={styles.text}>{message}</Text>}
       <Text style={styles.note}>
-        Для обхода нужен интернет. На телефоне камера доступна через защищённую
-        ссылку HTTPS.
+        Ответы и фото сохраняются на устройстве. На телефоне камера доступна
+        через защищённую ссылку HTTPS.
       </Text>
     </View>
   );
