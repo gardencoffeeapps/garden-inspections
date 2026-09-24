@@ -33,14 +33,10 @@ test("Approved checklist is preserved verbatim, including all photo flags", () =
   assert.equal(checklist.sections.length, 12);
 });
 
-test("Pilot cafe list contains only Sverdlova and uses the standard checklist", () => {
-  assert.deepEqual(cafes, [
-    {
-      name: "Garden · Свердлова",
-      id: "sverdlova",
-      address: "",
-    },
-  ]);
+test("Cafe list contains Garden cafes and uses the standard checklist", () => {
+  assert.equal(cafes.length, 19);
+  assert(cafes.some((c) => c.id === "sverdlova" && c.name === "Garden · Свердлова"));
+  assert(cafes.some((c) => c.id === "dramteatr" && c.name === "Garden · Драмтеатр"));
   assert.equal(flatten(checklist).length, 136);
 });
 
@@ -51,5 +47,6 @@ test("Interface copy describes the serverless web pilot", () => {
   assert.match(app, /Обход завершён и сохранён на этом устройстве/);
   assert.doesNotMatch(app, /адрес сервера|API-сервер|Server URL/i);
   assert.match(api, /localStorage/);
-  assert.match(api, /andrey/);
+  assert.match(api, /radaev_andrey/);
+  assert.match(api, /baranyuk_kolya/);
 });
