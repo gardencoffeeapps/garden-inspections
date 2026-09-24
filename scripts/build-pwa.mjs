@@ -13,14 +13,15 @@ html = html.replace(
   "You need to enable JavaScript to run this app.",
   "Для работы Garden включите JavaScript в браузере.",
 );
-const tags = `<link rel="manifest" href="/manifest.webmanifest" />
+html = html.replaceAll('src="/_expo/', 'src="./_expo/');
+const tags = `<link rel="manifest" href="./manifest.webmanifest" />
     <meta name="theme-color" content="#183F35" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-title" content="Garden" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-    <link rel="apple-touch-icon" href="/icons/garden-180.png" />
-    <link rel="icon" type="image/png" href="/icons/garden-192.png" />
-    <script src="/pwa.js" defer></script>`;
+    <link rel="apple-touch-icon" href="./icons/garden-180.png" />
+    <link rel="icon" type="image/png" href="./icons/garden-192.png" />
+    <script src="./pwa.js" defer></script>`;
 if (!html.includes('rel="manifest"'))
   html = html.replace("</head>", tags + "\n</head>");
 writeFileSync(index, html);
@@ -35,7 +36,7 @@ const assets = files(dist).filter(
 const hash = createHash("sha256");
 for (const p of assets.sort()) hash.update(readFileSync(p));
 const version = hash.digest("hex").slice(0, 16);
-const urls = assets.map((p) => "/" + relative(dist, p).replaceAll("\\", "/"));
+const urls = assets.map((p) => "./" + relative(dist, p).replaceAll("\\", "/"));
 const template = readFileSync(resolve(root, "scripts/sw-template.js"), "utf8");
 writeFileSync(
   resolve(dist, "sw.js"),

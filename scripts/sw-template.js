@@ -19,15 +19,17 @@ self.addEventListener("activate", (event) => {
 self.addEventListener("fetch", (event) => {
   const request = event.request;
   const url = new URL(request.url);
-  // Never intercept API, user data, photos, writes, or other origins.
+  const scopePath = new URL(self.registration.scope).pathname;
+  // Never intercept writes, other origins, or files outside the app folder.
   if (
     request.method !== "GET" ||
     url.origin !== self.location.origin ||
-    url.pathname === "/api" ||
-    url.pathname.startsWith("/api/")
+    !url.pathname.startsWith(scopePath)
   )
     return;
-  const asset = request.mode === "navigate" ? "/index.html" : url.pathname;
+  const relativePath = url.pathname.slice(scopePath.length) || "index.html";
+  const asset =
+    "./" + (request.mode === "navigate" ? "index.html" : relativePath);
   if (!ASSETS.includes(asset)) return;
   event.respondWith(
     caches.open(CACHE).then(async (cache) => {
