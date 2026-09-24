@@ -192,9 +192,7 @@ function Garden() {
     [notice, setNotice] = useState(""),
     [boot, setBoot] = useState(true);
   const [login, setLogin] = useState("andrey"),
-    [password, setPassword] = useState("Garden-demo-2026!"),
-    [server, setServer] = useState(api.base),
-    [settings, setSettings] = useState(false);
+    [password, setPassword] = useState("Garden-demo-2026!");
   const scroll = useRef<ScrollView>(null);
   async function refresh() {
     const [c, r] = await Promise.all([
@@ -229,7 +227,6 @@ function Garden() {
         if (api.token) {
           setUser(await api.call<User>("/me"));
           await refresh();
-          setServer(api.base);
         }
       } catch (e) {
         setError(
@@ -246,10 +243,6 @@ function Garden() {
     scroll.current?.scrollTo({ y: 0, animated: false });
   }, [page, questionId]);
   async function signIn() {
-    const target = server.trim().replace(/\/+$/, "");
-    if (!/^https?:\/\//.test(target))
-      throw new Error("Адрес сервера должен начинаться с http:// или https://");
-    api.base = target;
     const session = await api.call<{ token: string; user: User }>(
       "/login",
       "POST",
@@ -306,7 +299,7 @@ function Garden() {
     );
     setRun(r);
     setPage("report");
-    setNotice("Обход отправлен. Результат доступен руководителю.");
+    setNotice("Обход завершён и сохранён на этом устройстве.");
     await refresh();
   }
   const cafeName = (id: string) => cafes.find((c) => c.id === id)?.name || id;
@@ -428,7 +421,7 @@ function Garden() {
               {busy && (
                 <View style={s.busy}>
                   <ActivityIndicator size="small" color={C.green} />
-                  <Text style={s.muted}>Сохраняем и загружаем…</Text>
+                  <Text style={s.muted}>Сохраняем данные…</Text>
                 </View>
               )}
               {!user ? (
@@ -512,32 +505,10 @@ function Garden() {
                       </View>
                       <Text style={s.footnote}>
                         Кофейня «Свердлова», управляющий Андрей. Для пилота
-                        используется временный тестовый пароль.
+                        используется временный тестовый пароль. Результаты
+                        сохраняются в памяти этого телефона.
                       </Text>
                     </View>
-                    <Button
-                      kind="ghost"
-                      small
-                      onPress={() => setSettings(!settings)}
-                    >
-                      Настроить адрес сервера
-                    </Button>
-                    {settings && (
-                      <>
-                        <TextInput
-                          accessibilityLabel="Адрес сервера"
-                          style={s.input}
-                          value={server}
-                          onChangeText={setServer}
-                          autoCapitalize="none"
-                          autoCorrect={false}
-                        />
-                        <Text style={s.footnote}>
-                          На телефоне укажите адрес сервера в вашей сети. Для
-                          удалённого доступа нужен HTTPS.
-                        </Text>
-                      </>
-                    )}
                   </View>
                 </View>
               ) : (
@@ -909,7 +880,7 @@ function Garden() {
                           <Text style={s.cardTitle}>Готово к отправке?</Text>
                           <Text style={s.body}>
                             После отправки ответы, комментарии и фотографии
-                            блокируются. Время завершения сохранится на сервере.
+                            блокируются. Время завершения сохранится в отчёте.
                           </Text>
                           <Button
                             disabled={completed !== all(run).length}
@@ -927,7 +898,7 @@ function Garden() {
                           </Text>
                           <Text style={s.body}>
                             {run.status === "submitted"
-                              ? `Завершение: ${date(run.finishedAt)}. Изменение отправленного обхода запрещено сервером.`
+                              ? `Завершение: ${date(run.finishedAt)}. Изменение завершённого обхода заблокировано.`
                               : "Это черновик. Управляющий продолжает заполнение; итог появится после отправки."}
                           </Text>
                           <Text selectable style={s.footnote}>
@@ -1312,7 +1283,7 @@ function QuestionScreen({
               ? "Добавьте комментарий, чтобы продолжить."
               : q.photoRequired && !photoId
                 ? "Сделайте обязательное фото, чтобы продолжить."
-                : "Ответ сохранится на сервере после нажатия кнопки."}
+                : "Ответ сохранится после нажатия кнопки."}
         </Text>
       </View>
       <Modal
