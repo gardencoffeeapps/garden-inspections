@@ -191,8 +191,8 @@ function Garden() {
     [error, setError] = useState(""),
     [notice, setNotice] = useState(""),
     [boot, setBoot] = useState(true);
-  const [login, setLogin] = useState("radaev_andrey"),
-    [password, setPassword] = useState("Garden-demo-2026!");
+  const [login, setLogin] = useState(""),
+    [password, setPassword] = useState("");
   const scroll = useRef<ScrollView>(null);
   async function refresh() {
     const [c, r] = await Promise.all([
@@ -1752,4 +1752,7 @@ const s = StyleSheet.create({
     marginTop: 30,
   },
 });
+
+
+
 
