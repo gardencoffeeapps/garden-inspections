@@ -191,7 +191,7 @@ function Garden() {
     [error, setError] = useState(""),
     [notice, setNotice] = useState(""),
     [boot, setBoot] = useState(true);
-  const [login, setLogin] = useState("andrey"),
+  const [login, setLogin] = useState("radaev_andrey"),
     [password, setPassword] = useState("Garden-demo-2026!");
   const scroll = useRef<ScrollView>(null);
   async function refresh() {
@@ -486,11 +486,11 @@ function Garden() {
                           kind="secondary"
                           small
                           onPress={() => {
-                            setLogin("andrey");
+                            setLogin("radaev_andrey");
                             setPassword("Garden-demo-2026!");
                           }}
                         >
-                          Андрей · Свердлова
+                          Радаев Андрей · Свердлова
                         </Button>
                         <Button
                           kind="secondary"
@@ -504,7 +504,7 @@ function Garden() {
                         </Button>
                       </View>
                       <Text style={s.footnote}>
-                        Кофейня «Свердлова», управляющий Андрей. Для пилота
+                        У каждого управляющего свой логин и привязанные кофейни. Для пилота
                         используется временный тестовый пароль. Результаты
                         сохраняются в памяти этого телефона.
                       </Text>
@@ -1752,3 +1752,4 @@ const s = StyleSheet.create({
     marginTop: 30,
   },
 });
+
