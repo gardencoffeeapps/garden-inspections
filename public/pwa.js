@@ -11,7 +11,7 @@ window.addEventListener("appinstalled", () => {
 if ("serviceWorker" in navigator && window.isSecureContext) {
   window.addEventListener("load", () => {
     navigator.serviceWorker
-      .register("/sw.js", { scope: "/", updateViaCache: "none" })
+      .register("./sw.js", { scope: "./", updateViaCache: "none" })
       .catch(() => {
         // The online application remains usable if the browser cannot cache its shell.
       });
