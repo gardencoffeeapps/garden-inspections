@@ -11,8 +11,8 @@ https://gardencoffeeapps.github.io/garden-inspections/
 ## Как это работает
 
 - Один стандартный чек-лист для всех кофеен: 12 разделов, 136 вопросов, 10 обязательных фото.
-- Кофейня пилота: Garden · Свердлова.
-- Управляющий: Андрей, логин `andrey`.
+- В справочнике заведены реальные кофейни Garden.
+- Каждый управляющий входит под своим логином и видит только привязанные к нему кофейни.
 - Ответы Да/Нет; при Нет обязателен комментарий.
 - Фото требуются только у критических вопросов и делаются камерой в приложении.
 - После завершения обход блокируется от редактирования внутри приложения.
@@ -24,8 +24,22 @@ https://gardencoffeeapps.github.io/garden-inspections/
 
 | Роль | Логин | Пароль | Доступ |
 |---|---|---|---|
-| Управляющий · Свердлова | `andrey` | `Garden-demo-2026!` | Свердлова, свои обходы |
-| Руководитель | `admin` | `Garden-demo-2026!` | Результаты на текущем устройстве |
+| Панкова Анастасия | `pankova_anastasia` | `Garden-demo-2026!` | Калинка |
+| Секачев Алексей | `sekachev_aleksey` | `Garden-demo-2026!` | Советская |
+| Чемякин Стас | `chemyakin_stas` | `Garden-demo-2026!` | Океан |
+| Ромичева Надя | `romicheva_nadya` | `Garden-demo-2026!` | Парус |
+| Калчаков Денис | `kalchakov_denis` | `Garden-demo-2026!` | Европейский |
+| Гейнбихнер Катя | `geynbikhner_katya` | `Garden-demo-2026!` | Новин |
+| Забалуев Иван | `zabaluev_ivan` | `Garden-demo-2026!` | Панорама |
+| Баранюк Коля | `baranyuk_kolya` | `Garden-demo-2026!` | Газпром, Драмтеатр |
+| Воробьев Денис | `vorobev_denis` | `Garden-demo-2026!` | Преображенский |
+| Никовская Аня | `nikovskaya_anya` | `Garden-demo-2026!` | Арсиб |
+| Радаев Андрей | `radaev_andrey` | `Garden-demo-2026!` | Свердлова |
+| Мухамедзянова Ирина | `muhamedzyanova_irina` | `Garden-demo-2026!` | Видный |
+| Игнатов Стас | `ignatov_stas` | `Garden-demo-2026!` | Гагарина |
+| Киселева Екатерина | `kiseleva_ekaterina` | `Garden-demo-2026!` | Ворлд Класс |
+| Калиновская Аделина | `kalinovskaya_adelina` | `Garden-demo-2026!` | Домашний |
+| Руководитель | `admin` | `Garden-demo-2026!` | Все кофейни на текущем устройстве |
 
 Перед реальным пилотом пароль нужно заменить в `src/api.ts` или подключить внешний способ авторизации.
 
@@ -55,7 +69,7 @@ App.tsx                         Интерфейс управляющего и �
 src/api.ts                      Локальная авторизация и localStorage-хранилище
 src/types.ts                    Модели данных
 shared/checklist.json           Согласованный чек-лист
-shared/cafes.json               Кофейня Свердлова
+shared/cafes.json               Справочник кофеен Garden
 public/                         PWA-манифест, иконки, регистрация service worker
 scripts/build-pwa.mjs           Подготовка dist для GitHub Pages
 .github/workflows/pages.yml     Автосборка и публикация GitHub Pages
