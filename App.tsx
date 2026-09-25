@@ -241,7 +241,32 @@ function Garden() {
   }, []);
   useEffect(() => {
     scroll.current?.scrollTo({ y: 0, animated: false });
-  }, [page, questionId]);
+  }, [page, questionId]);  useEffect(() => {
+    if (Platform.OS !== "web" || user) return;
+    setLogin("");
+    setPassword("");
+    const disableLoginAutofill = () => {
+      document.querySelectorAll("input").forEach((input) => {
+        const label = input.getAttribute("aria-label");
+        if (label !== "Логин" && label !== "Пароль") return;
+        input.setAttribute("autocomplete", "new-password");
+        input.setAttribute("autocapitalize", "none");
+        input.setAttribute("autocorrect", "off");
+        input.setAttribute("spellcheck", "false");
+        input.setAttribute(
+          "name",
+          label === "Логин" ? "garden-login-entry" : "garden-password-entry",
+        );
+        input.setAttribute(
+          "id",
+          label === "Логин" ? "garden-login-entry" : "garden-password-entry",
+        );
+      });
+    };
+    disableLoginAutofill();
+    const timer = window.setTimeout(disableLoginAutofill, 250);
+    return () => window.clearTimeout(timer);
+  }, [user]);
   async function signIn() {
     const session = await api.call<{ token: string; user: User }>(
       "/login",
@@ -1760,6 +1785,7 @@ const s = StyleSheet.create({
     marginTop: 30,
   },
 });
+
 
 
 
