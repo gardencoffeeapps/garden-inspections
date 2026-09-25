@@ -151,8 +151,8 @@ async function compactPhotoBase64(base64: string): Promise<string> {
     ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
     return canvas.toDataURL("image/jpeg", quality).split(",")[1] || base64;
   };
-  const compact = render(900, 0.5);
-  return compact.length > 260_000 ? render(720, 0.38) : compact;
+  const compact = render(720, 0.38);
+  return compact.length > 140_000 ? render(560, 0.28) : compact;
 }
 function PhotoView({ id }: { id: string }) {
   const [uri, setUri] = useState("");
@@ -1782,6 +1782,9 @@ const s = StyleSheet.create({
     marginTop: 30,
   },
 });
+
+
+
 
 
 
