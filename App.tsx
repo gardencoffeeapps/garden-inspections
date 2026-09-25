@@ -132,6 +132,28 @@ function Progress({ value }: { value: number }) {
     </View>
   );
 }
+async function compactPhotoBase64(base64: string): Promise<string> {
+  if (Platform.OS !== "web" || typeof document === "undefined") return base64;
+  const source = `data:image/jpeg;base64,${base64}`;
+  const image = await new Promise<HTMLImageElement>((resolve, reject) => {
+    const img = document.createElement("img");
+    img.onload = () => resolve(img);
+    img.onerror = () => reject(new Error("Не удалось подготовить фото."));
+    img.src = source;
+  });
+  const render = (maxEdge: number, quality: number) => {
+    const scale = Math.min(1, maxEdge / Math.max(image.width, image.height));
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.max(1, Math.round(image.width * scale));
+    canvas.height = Math.max(1, Math.round(image.height * scale));
+    const ctx = canvas.getContext("2d");
+    if (!ctx) throw new Error("Не удалось подготовить фото.");
+    ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+    return canvas.toDataURL("image/jpeg", quality).split(",")[1] || base64;
+  };
+  const compact = render(900, 0.5);
+  return compact.length > 260_000 ? render(720, 0.38) : compact;
+}
 function PhotoView({ id }: { id: string }) {
   const [uri, setUri] = useState("");
   const [error, setError] = useState(false);
@@ -512,36 +534,10 @@ function Garden() {
                     <Button onPress={() => act(signIn)}>
                       Войти в Garden →
                     </Button>
-                    <View style={s.demoBox}>
-                      <Text style={s.eyebrow}>ТЕСТОВЫЙ ДОСТУП</Text>
-                      <View style={s.wrap}>
-                        <Button
-                          kind="secondary"
-                          small
-                          onPress={() => {
-                            setLogin("radaev_andrey");
-                            setPassword("Garden-demo-2026!");
-                          }}
-                        >
-                          Радаев Андрей · Свердлова
-                        </Button>
-                        <Button
-                          kind="secondary"
-                          small
-                          onPress={() => {
-                            setLogin("admin");
-                            setPassword("Garden-demo-2026!");
-                          }}
-                        >
-                          Руководитель
-                        </Button>
-                      </View>
-                      <Text style={s.footnote}>
-                        У каждого управляющего свой логин и привязанные кофейни. Для пилота
-                        используется временный тестовый пароль. Результаты
-                        сохраняются в памяти этого телефона.
-                      </Text>
-                    </View>
+                    <Text style={s.footnote}>
+                      У каждого управляющего свой логин и привязанные кофейни.
+                      Результаты сохраняются в памяти этого телефона.
+                    </Text>
                   </View>
                 </View>
               ) : (
@@ -1203,15 +1199,16 @@ function QuestionScreen({
   async function capture() {
     if (!camera.current || !ready) return;
     const picture = await camera.current.takePictureAsync({
-      quality: 0.45,
+      quality: 0.25,
       base64: true,
     });
     if (!picture?.base64)
       throw new Error("Не удалось получить фотографию. Попробуйте снова.");
+    const photoBase64 = await compactPhotoBase64(picture.base64);
     const photo = await api.call<Photo>(
       `/inspections/${run.id}/photos`,
       "POST",
-      { questionId: q.id, base64: picture.base64 },
+      { questionId: q.id, base64: photoBase64 },
     );
     setPhotoId(photo.id);
     onPhoto(photo);
@@ -1785,6 +1782,8 @@ const s = StyleSheet.create({
     marginTop: 30,
   },
 });
+
+
 
 
 
