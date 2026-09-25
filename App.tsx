@@ -462,19 +462,27 @@ function Garden() {
                     <Text style={s.label}>Логин</Text>
                     <TextInput
                       accessibilityLabel="Логин"
+                      nativeID="garden-login"
                       style={s.input}
                       value={login}
                       onChangeText={setLogin}
                       autoCapitalize="none"
                       autoCorrect={false}
+                      autoComplete="off"
+                      textContentType="none"
+                      importantForAutofill="no"
                     />
                     <Text style={s.label}>Пароль</Text>
                     <TextInput
                       accessibilityLabel="Пароль"
+                      nativeID="garden-password"
                       style={s.input}
                       value={password}
                       onChangeText={setPassword}
                       secureTextEntry
+                      autoComplete="off"
+                      textContentType="none"
+                      importantForAutofill="no"
                     />
                     <Button onPress={() => act(signIn)}>
                       Войти в Garden →
@@ -1752,6 +1760,7 @@ const s = StyleSheet.create({
     marginTop: 30,
   },
 });
+
 
 
 
