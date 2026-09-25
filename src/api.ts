@@ -11,7 +11,7 @@ import {
   User,
 } from "./types";
 
-type LocalPhoto = Photo & { uri: string };
+type LocalPhoto = Photo & { uri?: string };
 type LocalStore = {
   inspections: Inspection[];
   photos: LocalPhoto[];
@@ -169,6 +169,76 @@ function getBrowserStorage() {
   return localStorage;
 }
 
+const photoDbName = "garden-photo-store-v1";
+const photoStoreName = "photos";
+
+function supportsIndexedPhotos() {
+  return Platform.OS === "web" && typeof indexedDB !== "undefined";
+}
+
+function openPhotoDb(): Promise<IDBDatabase> {
+  return new Promise((resolve, reject) => {
+    if (!supportsIndexedPhotos()) return reject(new Error("IndexedDB недоступен."));
+    const request = indexedDB.open(photoDbName, 1);
+    request.onupgradeneeded = () => {
+      const db = request.result;
+      if (!db.objectStoreNames.contains(photoStoreName))
+        db.createObjectStore(photoStoreName);
+    };
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error || new Error("Не удалось открыть хранилище фото."));
+  });
+}
+
+async function withPhotoStore<T>(
+  mode: IDBTransactionMode,
+  action: (store: IDBObjectStore) => IDBRequest<T>,
+): Promise<T> {
+  const db = await openPhotoDb();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(photoStoreName, mode);
+    const request = action(tx.objectStore(photoStoreName));
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error || new Error("Не удалось сохранить фото."));
+    tx.oncomplete = () => db.close();
+    tx.onerror = () => {
+      db.close();
+      reject(tx.error || new Error("Не удалось сохранить фото."));
+    };
+  });
+}
+
+async function putPhotoUri(id: string, uri: string) {
+  try {
+    await withPhotoStore("readwrite", (store) => store.put(uri, id));
+  } catch (error) {
+    if (
+      error instanceof DOMException &&
+      (error.name === "QuotaExceededError" || error.name === "NS_ERROR_DOM_QUOTA_REACHED")
+    )
+      throw new Error(
+        "Память телефона для фото заполнена. Удалите старые данные сайта Garden в браузере и откройте ссылку заново.",
+      );
+    throw error;
+  }
+}
+
+async function getPhotoUri(id: string) {
+  return withPhotoStore<string | undefined>("readonly", (store) => store.get(id));
+}
+
+async function migratePhotoPayloads(store: LocalStore) {
+  if (!supportsIndexedPhotos()) return;
+  let changed = false;
+  for (const photo of store.photos) {
+    if (!photo.uri) continue;
+    await putPhotoUri(photo.id, photo.uri);
+    delete photo.uri;
+    changed = true;
+  }
+  if (changed) saveStore(store);
+}
+
 function loadStore(): LocalStore {
   const raw = getBrowserStorage().getItem(storageKey);
   if (!raw) return { inspections: [], photos: [] };
@@ -183,8 +253,27 @@ function loadStore(): LocalStore {
   }
 }
 
+function pruneUnusedPhotos(store: LocalStore) {
+  const used = new Set(
+    store.inspections.flatMap((run) => run.photos.map((photo) => photo.id)),
+  );
+  store.photos = store.photos.filter((photo) => used.has(photo.id));
+}
+
 function saveStore(store: LocalStore) {
-  getBrowserStorage().setItem(storageKey, JSON.stringify(store));
+  pruneUnusedPhotos(store);
+  try {
+    getBrowserStorage().setItem(storageKey, JSON.stringify(store));
+  } catch (error) {
+    if (
+      error instanceof DOMException &&
+      (error.name === "QuotaExceededError" || error.name === "NS_ERROR_DOM_QUOTA_REACHED")
+    )
+      throw new Error(
+        "Память телефона для фото заполнена. Переснимите фото: приложение сохранит уменьшенную версию. Если ошибка повторится, завершите текущий обход и очистите старые данные сайта Garden в браузере.",
+      );
+    throw error;
+  }
 }
 
 function publicUser(user: (typeof users)[number]): User {
@@ -296,6 +385,7 @@ export const api = {
 
     const user = currentUser(this.token);
     const store = loadStore();
+    await migratePhotoPayloads(store);
 
     if (path === "/me") return user as T;
 
@@ -409,10 +499,16 @@ export const api = {
         id: `photo-${Date.now()}-${Math.random().toString(16).slice(2, 8)}`,
         questionId: question.id,
         createdAt: now(),
-        uri: `data:image/jpeg;base64,${request.base64}`,
       };
-      store.photos.push(photo);
+      await putPhotoUri(photo.id, `data:image/jpeg;base64,${request.base64}`);
       run.photos = run.photos.filter((item) => item.questionId !== question.id);
+      const usedBeforeSave = new Set(
+        store.inspections.flatMap((inspection) =>
+          inspection.photos.map((item) => item.id),
+        ),
+      );
+      store.photos = store.photos.filter((item) => usedBeforeSave.has(item.id));
+      store.photos.push(photo);
       run.photos.push({
         id: photo.id,
         questionId: photo.questionId,
@@ -427,7 +523,9 @@ export const api = {
     if (photoReadMatch && method === "GET") {
       const photo = store.photos.find((item) => item.id === photoReadMatch[1]);
       if (!photo) throw new Error("Фото не найдено на этом устройстве.");
-      return { uri: photo.uri } as T;
+      const uri = photo.uri || (await getPhotoUri(photo.id));
+      if (!uri) throw new Error("Фото не найдено на этом устройстве.");
+      return { uri } as T;
     }
 
     throw new Error("Действие не поддерживается локальной версией Garden.");
@@ -450,3 +548,6 @@ export const api = {
     else await SecureStore.deleteItemAsync(sessionKey);
   },
 };
+
+
+
