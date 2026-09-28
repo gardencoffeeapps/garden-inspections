@@ -132,27 +132,56 @@ function Progress({ value }: { value: number }) {
     </View>
   );
 }
+function base64ToBlob(base64: string, type = "image/jpeg") {
+  const binary = atob(base64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i += 1) bytes[i] = binary.charCodeAt(i);
+  return new Blob([bytes], { type });
+}
+async function loadPhotoSource(base64: string): Promise<HTMLImageElement | ImageBitmap> {
+  const blob = base64ToBlob(base64);
+  if (typeof createImageBitmap === "function") {
+    try {
+      return await createImageBitmap(blob);
+    } catch {
+      // Some mobile browsers fail createImageBitmap for camera captures;
+      // fall back to an HTMLImageElement below.
+    }
+  }
+  const source = URL.createObjectURL(blob);
+  try {
+    return await new Promise<HTMLImageElement>((resolve, reject) => {
+      const img = document.createElement("img");
+      img.onload = () => resolve(img);
+      img.onerror = () => reject(new Error("Не удалось прочитать фото."));
+      img.src = source;
+    });
+  } finally {
+    URL.revokeObjectURL(source);
+  }
+}
 async function compactPhotoBase64(base64: string): Promise<string> {
   if (Platform.OS !== "web" || typeof document === "undefined") return base64;
-  const source = `data:image/jpeg;base64,${base64}`;
-  const image = await new Promise<HTMLImageElement>((resolve, reject) => {
-    const img = document.createElement("img");
-    img.onload = () => resolve(img);
-    img.onerror = () => reject(new Error("Не удалось подготовить фото."));
-    img.src = source;
-  });
-  const render = (maxEdge: number, quality: number) => {
-    const scale = Math.min(1, maxEdge / Math.max(image.width, image.height));
-    const canvas = document.createElement("canvas");
-    canvas.width = Math.max(1, Math.round(image.width * scale));
-    canvas.height = Math.max(1, Math.round(image.height * scale));
-    const ctx = canvas.getContext("2d");
-    if (!ctx) throw new Error("Не удалось подготовить фото.");
-    ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
-    return canvas.toDataURL("image/jpeg", quality).split(",")[1] || base64;
-  };
-  const compact = render(720, 0.38);
-  return compact.length > 140_000 ? render(560, 0.28) : compact;
+  try {
+    const image = await loadPhotoSource(base64);
+    const sourceWidth = "width" in image ? image.width : 0;
+    const sourceHeight = "height" in image ? image.height : 0;
+    if (!sourceWidth || !sourceHeight) return base64;
+    const render = (maxEdge: number, quality: number) => {
+      const scale = Math.min(1, maxEdge / Math.max(sourceWidth, sourceHeight));
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.max(1, Math.round(sourceWidth * scale));
+      canvas.height = Math.max(1, Math.round(sourceHeight * scale));
+      const ctx = canvas.getContext("2d", { alpha: false });
+      if (!ctx) return base64;
+      ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+      return canvas.toDataURL("image/jpeg", quality).split(",")[1] || base64;
+    };
+    const compact = render(720, 0.38);
+    return compact.length > 140_000 ? render(560, 0.28) : compact;
+  } catch {
+    return base64;
+  }
 }
 function PhotoView({ id }: { id: string }) {
   const [uri, setUri] = useState("");
@@ -1782,6 +1811,8 @@ const s = StyleSheet.create({
     marginTop: 30,
   },
 });
+
+
 
 
 
