@@ -2,6 +2,7 @@ const CACHE = __CACHE_NAME__;
 const ASSETS = __ASSETS__;
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(ASSETS)));
+  self.skipWaiting();
 });
 self.addEventListener("activate", (event) => {
   event.waitUntil(
@@ -13,7 +14,8 @@ self.addEventListener("activate", (event) => {
             .filter((key) => key.startsWith("garden-shell-") && key !== CACHE)
             .map((key) => caches.delete(key)),
         ),
-      ),
+      )
+      .then(() => self.clients?.claim?.()),
   );
 });
 self.addEventListener("fetch", (event) => {
@@ -38,3 +40,5 @@ self.addEventListener("fetch", (event) => {
     }),
   );
 });
+
+
