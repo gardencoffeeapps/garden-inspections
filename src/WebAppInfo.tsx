@@ -23,8 +23,8 @@ export function WebConnectionStatus() {
     <View accessibilityRole="alert" style={styles.offline}>
       <Text style={styles.title}>Нет подключения к сети</Text>
       <Text style={styles.text}>
-        Уже открытый Garden продолжит сохранять ответы на этом устройстве.
-        Интернет понадобится, чтобы открыть ссылку заново на другом устройстве.
+        Уже открытый Garden продолжит сохранять черновик на этом устройстве.
+        Интернет понадобится для отправки завершённого обхода в общую базу и открытия ссылки на другом устройстве.
       </Text>
     </View>
   );
@@ -108,7 +108,7 @@ export function WebInstallCard() {
       </Text>
       {message !== "" && <Text style={styles.text}>{message}</Text>}
       <Text style={styles.note}>
-        Ответы и фото сохраняются на устройстве. На телефоне камера доступна
+        Черновики и фото сохраняются на устройстве до отправки. Завершённые обходы уходят в общую базу Garden. На телефоне камера доступна
         через защищённую ссылку HTTPS.
       </Text>
     </View>
@@ -147,3 +147,4 @@ const styles = StyleSheet.create({
   },
   buttonText: { color: "white", fontSize: 14, fontWeight: "600" },
 });
+
