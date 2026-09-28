@@ -324,7 +324,7 @@ function Garden() {
     );
     setRun(r);
     setPage("report");
-    setNotice("Обход завершён и сохранён на этом устройстве.");
+    setNotice("Обход завершён и отправлен в общую базу Garden.");
     await refresh();
   }
   const cafeName = (id: string) => cafes.find((c) => c.id === id)?.name || id;
