@@ -374,6 +374,179 @@ function requireRun(store: LocalStore, id: string, user: User) {
   return run;
 }
 
+const supabaseUrl = "https://dftacohhdvkfnsyqfbgf.supabase.co";
+const supabaseKey = "sb_publishable_ltaNA7nnVozoSCOcZIjg";
+const photoBucket = "inspection-photos";
+const remoteAvailable =
+  Platform.OS === "web" &&
+  typeof fetch !== "undefined" &&
+  supabaseUrl.startsWith("https://") &&
+  supabaseKey.startsWith("sb_publishable_");
+
+type RemoteInspectionRow = {
+  id: string;
+  cafe_id: string;
+  user_id: string;
+  user_name: string;
+  status: "draft" | "submitted";
+  started_at: string;
+  finished_at: string | null;
+  revision: number;
+  checksum: string | null;
+  question_count: number;
+  completed: number;
+  issues: number;
+  payload: Inspection;
+};
+
+type RemotePhotoRow = {
+  photo_id: string;
+  inspection_id: string;
+  question_id: string;
+  storage_path: string;
+  public_url: string;
+};
+
+function remoteHeaders(extra?: Record<string, string>) {
+  return {
+    apikey: supabaseKey,
+    Authorization: `Bearer ${supabaseKey}`,
+    ...extra,
+  };
+}
+
+async function remoteFetch<T>(path: string, init: RequestInit = {}): Promise<T> {
+  if (!remoteAvailable) throw new Error("Supabase не настроен.");
+  const response = await fetch(`${supabaseUrl}${path}`, {
+    ...init,
+    headers: {
+      ...remoteHeaders(),
+      ...(init.body ? { "Content-Type": "application/json" } : {}),
+      ...(init.headers || {}),
+    },
+  });
+  if (!response.ok) {
+    const details = await response.text().catch(() => "");
+    throw new Error(
+      `Не удалось связаться с общей базой Garden (${response.status}). ${details}`.trim(),
+    );
+  }
+  if (response.status === 204) return undefined as T;
+  const text = await response.text();
+  return (text ? JSON.parse(text) : undefined) as T;
+}
+
+function remoteInspectionFromRow(row: RemoteInspectionRow): Inspection {
+  return row.payload;
+}
+
+function canSeeRun(run: Inspection, user: User) {
+  return (
+    allowedCafeIds(user).includes(run.cafeId) &&
+    (user.role === "admin" || run.user.id === user.id)
+  );
+}
+
+async function listRemoteInspections(user: User) {
+  if (!remoteAvailable) return [] as Inspection[];
+  try {
+    const rows = await remoteFetch<RemoteInspectionRow[]>(
+      "/rest/v1/garden_inspections?select=*&order=started_at.desc",
+    );
+    return rows.map(remoteInspectionFromRow).filter((run) => canSeeRun(run, user));
+  } catch {
+    return [] as Inspection[];
+  }
+}
+
+async function getRemoteInspection(id: string, user: User) {
+  if (!remoteAvailable) return null;
+  try {
+    const rows = await remoteFetch<RemoteInspectionRow[]>(
+      `/rest/v1/garden_inspections?select=*&id=eq.${encodeURIComponent(id)}&limit=1`,
+    );
+    const run = rows[0] ? remoteInspectionFromRow(rows[0]) : null;
+    return run && canSeeRun(run, user) ? run : null;
+  } catch {
+    return null;
+  }
+}
+
+async function uploadPhotoToRemote(run: Inspection, photo: Photo) {
+  const storedPhoto = loadStore().photos.find((item) => item.id === photo.id);
+  const uri = storedPhoto?.uri || (await getPhotoUri(photo.id));
+  if (!uri)
+    throw new Error("Не удалось отправить фото в общую базу Garden: фото не найдено на этом устройстве.");
+  const storagePath = `${run.cafeId}/${run.id}/${photo.id}.jpg`;
+  const blob = await fetch(uri).then((response) => response.blob());
+  const upload = await fetch(
+    `${supabaseUrl}/storage/v1/object/${photoBucket}/${storagePath}`,
+    {
+      method: "PUT",
+      headers: remoteHeaders({
+        "Content-Type": blob.type || "image/jpeg",
+        "x-upsert": "true",
+      }),
+      body: blob,
+    },
+  );
+  if (!upload.ok) {
+    const details = await upload.text().catch(() => "");
+    throw new Error(
+      `Не удалось отправить фото в общую базу Garden (${upload.status}). ${details}`.trim(),
+    );
+  }
+  const publicUrl = `${supabaseUrl}/storage/v1/object/public/${photoBucket}/${storagePath}`;
+  await remoteFetch(`/rest/v1/garden_photos?on_conflict=photo_id`, {
+    method: "POST",
+    headers: { Prefer: "resolution=merge-duplicates,return=minimal" },
+    body: JSON.stringify({
+      photo_id: photo.id,
+      inspection_id: run.id,
+      question_id: photo.questionId,
+      storage_path: storagePath,
+      public_url: publicUrl,
+    } satisfies RemotePhotoRow),
+  });
+}
+
+async function syncInspectionToRemote(run: Inspection) {
+  if (!remoteAvailable || run.status !== "submitted") return;
+  await Promise.all(run.photos.map((photo) => uploadPhotoToRemote(run, photo)));
+  const summary = toSummary(run);
+  await remoteFetch(`/rest/v1/garden_inspections?on_conflict=id`, {
+    method: "POST",
+    headers: { Prefer: "resolution=merge-duplicates,return=minimal" },
+    body: JSON.stringify({
+      id: run.id,
+      cafe_id: run.cafeId,
+      user_id: run.user.id,
+      user_name: run.user.name,
+      status: run.status,
+      started_at: run.startedAt,
+      finished_at: run.finishedAt,
+      revision: run.revision,
+      checksum: run.checksum,
+      question_count: summary.questionCount,
+      completed: summary.completed,
+      issues: summary.issues,
+      payload: run,
+    }),
+  });
+}
+
+async function getRemotePhotoUri(id: string) {
+  if (!remoteAvailable) return undefined;
+  try {
+    const rows = await remoteFetch<Array<Pick<RemotePhotoRow, "public_url">>>(
+      `/rest/v1/garden_photos?select=public_url&photo_id=eq.${encodeURIComponent(id)}&limit=1`,
+    );
+    return rows[0]?.public_url;
+  } catch {
+    return undefined;
+  }
+}
+
 export const api = {
   base: "local",
   token: "",
@@ -410,9 +583,14 @@ export const api = {
         .map(clone) as T;
 
     if (path === "/inspections" && method === "GET") {
-      return store.inspections
+      const localRuns = store.inspections
         .filter((run) => allowedCafeIds(user).includes(run.cafeId))
-        .filter((run) => user.role === "admin" || run.user.id === user.id)
+        .filter((run) => user.role === "admin" || run.user.id === user.id);
+      const remoteRuns = await listRemoteInspections(user);
+      const byId = new Map<string, Inspection>();
+      for (const run of localRuns) byId.set(run.id, run);
+      for (const run of remoteRuns) byId.set(run.id, run);
+      return Array.from(byId.values())
         .sort((a, b) => b.startedAt.localeCompare(a.startedAt))
         .map(toSummary) as T;
     }
@@ -447,8 +625,17 @@ export const api = {
     }
 
     const runMatch = path.match(/^\/inspections\/([^/]+)$/);
-    if (runMatch && method === "GET")
-      return clone(requireRun(store, runMatch[1], user)) as T;
+    if (runMatch && method === "GET") {
+      const localRun = store.inspections.find((item) => item.id === runMatch[1]);
+      if (localRun) {
+        if (!allowedCafeIds(user).includes(localRun.cafeId))
+          throw new Error("У вас нет доступа к этой кофейне.");
+        return clone(localRun) as T;
+      }
+      const remoteRun = await getRemoteInspection(runMatch[1], user);
+      if (remoteRun) return clone(remoteRun) as T;
+      throw new Error("Обход не найден.");
+    }
 
     const answerMatch = path.match(/^\/inspections\/([^/]+)\/answers$/);
     if (answerMatch && method === "PUT") {
@@ -495,6 +682,7 @@ export const api = {
         run.checksum = checksum(run);
         saveStore(store);
       }
+      await syncInspectionToRemote(run);
       return clone(run) as T;
     }
 
@@ -543,10 +731,13 @@ export const api = {
     const photoReadMatch = path.match(/^\/photos\/([^?]+)\?format=data$/);
     if (photoReadMatch && method === "GET") {
       const photo = store.photos.find((item) => item.id === photoReadMatch[1]);
-      if (!photo) throw new Error("Фото не найдено на этом устройстве.");
-      const uri = photo.uri || (await getPhotoUri(photo.id));
-      if (!uri) throw new Error("Фото не найдено на этом устройстве.");
-      return { uri } as T;
+      if (photo) {
+        const uri = photo.uri || (await getPhotoUri(photo.id));
+        if (uri) return { uri } as T;
+      }
+      const remoteUri = await getRemotePhotoUri(photoReadMatch[1]);
+      if (remoteUri) return { uri: remoteUri } as T;
+      throw new Error("Фото не найдено.");
     }
 
     throw new Error("Действие не поддерживается локальной версией Garden.");
@@ -569,6 +760,7 @@ export const api = {
     else await SecureStore.deleteItemAsync(sessionKey);
   },
 };
+
 
 
 
