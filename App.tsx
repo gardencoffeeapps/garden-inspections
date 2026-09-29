@@ -227,6 +227,37 @@ function PhotoView({ id }: { id: string }) {
   );
 }
 
+function PhotoSyncStatus({ id }: { id: string }) {
+  const [status, setStatus] = useState<"loading" | "synced" | "pending" | "local" | "unknown">("loading");
+  useEffect(() => {
+    let active = true;
+    setStatus("loading");
+    api
+      .call<{ local: boolean; remote: string }>(`/photos/${id}?format=status`)
+      .then((result) => {
+        if (!active) return;
+        if (result.remote === "synced") setStatus("synced");
+        else if (result.local) setStatus("local");
+        else if (result.remote === "pending") setStatus("pending");
+        else setStatus("unknown");
+      })
+      .catch(() => {
+        if (active) setStatus("unknown");
+      });
+    return () => {
+      active = false;
+    };
+  }, [id]);
+
+  const labels = {
+    loading: "Проверяем отправку фото…",
+    synced: "✓ Фото есть в общей базе",
+    pending: "Фото ещё отправляется",
+    local: "Фото есть на этом телефоне, ждём отправку в базу",
+    unknown: "Статус фото не удалось проверить",
+  };
+  return <Text style={s.footnote}>{labels[status]}</Text>;
+}
 export default function App() {
   return (
     <SafeAreaProvider>
@@ -923,11 +954,14 @@ function Garden() {
                                     {sec.title}
                                   </Text>
                                   <Tag alert={!present}>
-                                    {present ? "✓ Фото есть" : "Нет фото"}
+                                    {present ? (page === "report" ? "✓ Фото сохранено" : "✓ Фото есть") : "Нет фото"}
                                   </Tag>
                                 </View>
                                 {page === "report" && present && (
-                                  <PhotoView id={id!} />
+                                  <>
+                                    <PhotoView id={id!} />
+                                    <PhotoSyncStatus id={id!} />
+                                  </>
                                 )}
                                 {page === "review" && !present && (
                                   <Button
