@@ -255,8 +255,13 @@ async function migratePhotoPayloads(store: LocalStore) {
   let changed = false;
   for (const photo of store.photos) {
     if (!photo.uri) continue;
-    await putPhotoPayload(photo.id, dataUriToBlob(photo.uri));
-    delete photo.uri;
+    try {
+      await putPhotoPayload(photo.id, dataUriToBlob(photo.uri));
+      delete photo.uri;
+    } catch (error) {
+      console.warn("Garden skipped corrupted cached photo", error);
+      delete photo.uri;
+    }
     changed = true;
   }
   if (changed) saveStore(store);
