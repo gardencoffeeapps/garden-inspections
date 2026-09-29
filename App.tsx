@@ -133,33 +133,54 @@ function Progress({ value }: { value: number }) {
   );
 }
 
+async function blobToDataUri(blob: Blob) {
+  return new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result));
+    reader.onerror = () => reject(reader.error || new Error("Не удалось прочитать фото."));
+    reader.readAsDataURL(blob);
+  });
+}
+
 async function compressPhotoForAudit(base64: string) {
   const inputUri = `data:image/jpeg;base64,${base64}`;
   if (Platform.OS !== "web" || typeof document === "undefined") return inputUri;
-  const image = document.createElement("img");
-  image.decoding = "async";
-  const loaded = new Promise<void>((resolve, reject) => {
-    image.onload = () => resolve();
-    image.onerror = () =>
-      reject(new Error("Не удалось подготовить фото. Попробуйте переснять."));
-  });
-  image.src = inputUri;
-  await loaded;
-  const maxSide = 1280;
-  const scale = Math.min(
-    1,
-    maxSide / Math.max(image.naturalWidth, image.naturalHeight),
-  );
-  const width = Math.max(1, Math.round(image.naturalWidth * scale));
-  const height = Math.max(1, Math.round(image.naturalHeight * scale));
-  const canvas = document.createElement("canvas");
-  canvas.width = width;
-  canvas.height = height;
-  const context = canvas.getContext("2d");
-  if (!context)
-    throw new Error("Не удалось подготовить фото. Попробуйте переснять.");
-  context.drawImage(image, 0, 0, width, height);
-  return canvas.toDataURL("image/jpeg", 0.68);
+  try {
+    const source = await fetch(inputUri).then((response) => response.blob());
+    const imageUrl = URL.createObjectURL(source);
+    try {
+      const image = document.createElement("img");
+      image.decoding = "async";
+      const loaded = new Promise<void>((resolve, reject) => {
+        image.onload = () => resolve();
+        image.onerror = () => reject(new Error("Браузер не открыл фото для сжатия."));
+      });
+      image.src = imageUrl;
+      await loaded;
+      const maxSide = 1280;
+      const scale = Math.min(
+        1,
+        maxSide / Math.max(image.naturalWidth, image.naturalHeight),
+      );
+      const width = Math.max(1, Math.round(image.naturalWidth * scale));
+      const height = Math.max(1, Math.round(image.naturalHeight * scale));
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      const context = canvas.getContext("2d");
+      if (!context) return inputUri;
+      context.drawImage(image, 0, 0, width, height);
+      const compressed = await new Promise<Blob | null>((resolve) =>
+        canvas.toBlob(resolve, "image/jpeg", 0.58),
+      );
+      return compressed ? await blobToDataUri(compressed) : inputUri;
+    } finally {
+      URL.revokeObjectURL(imageUrl);
+    }
+  } catch (error) {
+    console.warn("Garden photo compression skipped", error);
+    return inputUri;
+  }
 }
 
 function PhotoView({ id }: { id: string }) {
@@ -1210,7 +1231,7 @@ function QuestionScreen({
   async function capture() {
     if (!camera.current || !ready) return;
     const picture = await camera.current.takePictureAsync({
-      quality: 0.16,
+      quality: 0.08,
       base64: true,
     });
     if (!picture?.base64)
@@ -1373,7 +1394,7 @@ function QuestionScreen({
                 })
               }
             >
-              {busy ? "Готовим фото…" : "●  Сделать фото"}
+              {busy ? "Сохраняем фото…" : "●  Сделать фото"}
             </Button>
           </View>
         </SafeAreaView>
