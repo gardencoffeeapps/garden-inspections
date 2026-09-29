@@ -1177,7 +1177,7 @@ function QuestionScreen({
   async function capture() {
     if (!camera.current || !ready) return;
     const picture = await camera.current.takePictureAsync({
-      quality: 0.25,
+      quality: 0.16,
       base64: true,
     });
     if (!picture?.base64)
@@ -1759,6 +1759,7 @@ const s = StyleSheet.create({
     marginTop: 30,
   },
 });
+
 
 
 
