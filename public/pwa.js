@@ -8,6 +8,13 @@ window.addEventListener("appinstalled", () => {
   window.dispatchEvent(new Event("garden-installed"));
 });
 if ("serviceWorker" in navigator && window.isSecureContext) {
+  let refreshing = false;
+  navigator.serviceWorker.addEventListener("controllerchange", () => {
+    if (refreshing || sessionStorage.getItem("garden-sw-refreshed") === "1") return;
+    refreshing = true;
+    sessionStorage.setItem("garden-sw-refreshed", "1");
+    window.location.reload();
+  });
   window.addEventListener("load", () => {
     navigator.serviceWorker
       .register("./sw.js", { scope: "./", updateViaCache: "none" })
