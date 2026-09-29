@@ -480,13 +480,28 @@ async function getRemoteInspection(id: string, user: User) {
   }
 }
 
+function normalizeBase64Payload(payload: string) {
+  const compact = payload.trim().replace(/\s/g, "").replace(/-/g, "+").replace(/_/g, "/");
+  const remainder = compact.length % 4;
+  if (remainder === 0) return compact;
+  if (remainder === 1) throw new Error("Фото повреждено. Переснимите контрольную точку.");
+  return compact.padEnd(compact.length + 4 - remainder, "=");
+}
+
 function dataUriToBlob(uri: string) {
-  const match = uri.match(/^data:([^;,]+)?(;base64)?,(.*)$/);
+  const match = uri.match(/^data:([^;,]+)?(;base64)?,([\s\S]*)$/);
   if (!match) throw new Error("Не удалось подготовить фото для отправки.");
   const mime = match[1] || "image/jpeg";
   const isBase64 = !!match[2];
   const payload = match[3] || "";
-  const binary = isBase64 ? atob(payload) : decodeURIComponent(payload);
+  let binary = "";
+  try {
+    binary = isBase64
+      ? atob(normalizeBase64Payload(payload))
+      : decodeURIComponent(payload);
+  } catch {
+    throw new Error("Фото не удалось сохранить. Переснимите контрольную точку.");
+  }
   const bytes = new Uint8Array(binary.length);
   for (let i = 0; i < binary.length; i += 1) bytes[i] = binary.charCodeAt(i);
   return new Blob([bytes], { type: mime });
