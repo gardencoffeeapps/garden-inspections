@@ -472,13 +472,25 @@ async function getRemoteInspection(id: string, user: User) {
   }
 }
 
+function dataUriToBlob(uri: string) {
+  const match = uri.match(/^data:([^;,]+)?(;base64)?,(.*)$/);
+  if (!match) throw new Error("Не удалось подготовить фото для отправки.");
+  const mime = match[1] || "image/jpeg";
+  const isBase64 = !!match[2];
+  const payload = match[3] || "";
+  const binary = isBase64 ? atob(payload) : decodeURIComponent(payload);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i += 1) bytes[i] = binary.charCodeAt(i);
+  return new Blob([bytes], { type: mime });
+}
+
 async function uploadPhotoToRemote(run: Inspection, photo: Photo) {
   const storedPhoto = loadStore().photos.find((item) => item.id === photo.id);
   const uri = storedPhoto?.uri || (await getPhotoUri(photo.id));
   if (!uri)
     throw new Error("Не удалось отправить фото в общую базу Garden: фото не найдено на этом устройстве.");
   const storagePath = `${run.cafeId}/${run.id}/${photo.id}.jpg`;
-  const blob = await fetch(uri).then((response) => response.blob());
+  const blob = dataUriToBlob(uri);
   const upload = await fetch(
     `${supabaseUrl}/storage/v1/object/${photoBucket}/${storagePath}`,
     {
@@ -510,9 +522,7 @@ async function uploadPhotoToRemote(run: Inspection, photo: Photo) {
   });
 }
 
-async function syncInspectionToRemote(run: Inspection) {
-  if (!remoteAvailable || run.status !== "submitted") return;
-  await Promise.all(run.photos.map((photo) => uploadPhotoToRemote(run, photo)));
+async function upsertRemoteInspection(run: Inspection) {
   const summary = toSummary(run);
   await remoteFetch(`/rest/v1/garden_inspections?on_conflict=id`, {
     method: "POST",
@@ -533,6 +543,18 @@ async function syncInspectionToRemote(run: Inspection) {
       payload: run,
     }),
   });
+}
+
+async function syncInspectionToRemote(run: Inspection) {
+  if (!remoteAvailable || run.status !== "submitted") return;
+  await upsertRemoteInspection(run);
+  for (const photo of run.photos) {
+    try {
+      await uploadPhotoToRemote(run, photo);
+    } catch (error) {
+      console.warn("Garden photo sync failed", error);
+    }
+  }
 }
 
 async function getRemotePhotoUri(id: string) {
@@ -760,6 +782,7 @@ export const api = {
     else await SecureStore.deleteItemAsync(sessionKey);
   },
 };
+
 
 
 
