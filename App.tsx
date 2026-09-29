@@ -132,16 +132,48 @@ function Progress({ value }: { value: number }) {
     </View>
   );
 }
+
+async function compressPhotoForAudit(base64: string) {
+  const inputUri = `data:image/jpeg;base64,${base64}`;
+  if (Platform.OS !== "web" || typeof document === "undefined") return inputUri;
+  const image = document.createElement("img");
+  image.decoding = "async";
+  const loaded = new Promise<void>((resolve, reject) => {
+    image.onload = () => resolve();
+    image.onerror = () =>
+      reject(new Error("Не удалось подготовить фото. Попробуйте переснять."));
+  });
+  image.src = inputUri;
+  await loaded;
+  const maxSide = 1280;
+  const scale = Math.min(
+    1,
+    maxSide / Math.max(image.naturalWidth, image.naturalHeight),
+  );
+  const width = Math.max(1, Math.round(image.naturalWidth * scale));
+  const height = Math.max(1, Math.round(image.naturalHeight * scale));
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  const context = canvas.getContext("2d");
+  if (!context)
+    throw new Error("Не удалось подготовить фото. Попробуйте переснять.");
+  context.drawImage(image, 0, 0, width, height);
+  return canvas.toDataURL("image/jpeg", 0.68);
+}
+
 function PhotoView({ id }: { id: string }) {
   const [uri, setUri] = useState("");
   const [error, setError] = useState(false);
   useEffect(() => {
     let active = true;
+    let loadedUri = "";
     setUri("");
     setError(false);
     api
       .call(`/photos/${id}?format=data`)
       .then((d) => {
+        loadedUri = d.uri;
         if (active) setUri(d.uri);
       })
       .catch(() => {
@@ -149,6 +181,7 @@ function PhotoView({ id }: { id: string }) {
       });
     return () => {
       active = false;
+      if (loadedUri.startsWith("blob:")) URL.revokeObjectURL(loadedUri);
     };
   }, [id]);
   return uri ? (
@@ -1182,10 +1215,11 @@ function QuestionScreen({
     });
     if (!picture?.base64)
       throw new Error("Не удалось получить фотографию. Попробуйте снова.");
+    const dataUri = await compressPhotoForAudit(picture.base64);
     const photo = await api.call<Photo>(
       `/inspections/${run.id}/photos`,
       "POST",
-      { questionId: q.id, base64: picture.base64 },
+      { questionId: q.id, dataUri },
     );
     setPhotoId(photo.id);
     onPhoto(photo);
@@ -1339,7 +1373,7 @@ function QuestionScreen({
                 })
               }
             >
-              {busy ? "Загружаем фото…" : "●  Сделать фото"}
+              {busy ? "Готовим фото…" : "●  Сделать фото"}
             </Button>
           </View>
         </SafeAreaView>
