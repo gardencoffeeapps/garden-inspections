@@ -545,9 +545,7 @@ async function upsertRemoteInspection(run: Inspection) {
   });
 }
 
-async function syncInspectionToRemote(run: Inspection) {
-  if (!remoteAvailable || run.status !== "submitted") return;
-  await upsertRemoteInspection(run);
+async function syncPhotosToRemote(run: Inspection) {
   for (const photo of run.photos) {
     try {
       await uploadPhotoToRemote(run, photo);
@@ -555,6 +553,12 @@ async function syncInspectionToRemote(run: Inspection) {
       console.warn("Garden photo sync failed", error);
     }
   }
+}
+
+async function syncInspectionToRemote(run: Inspection) {
+  if (!remoteAvailable || run.status !== "submitted") return;
+  await upsertRemoteInspection(run);
+  void syncPhotosToRemote(run);
 }
 
 async function getRemotePhotoUri(id: string) {
@@ -797,6 +801,7 @@ export const api = {
     else await SecureStore.deleteItemAsync(sessionKey);
   },
 };
+
 
 
 
