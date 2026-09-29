@@ -12,6 +12,7 @@ import {
 } from "./types";
 
 type LocalPhoto = Photo & { uri?: string };
+type PhotoPayload = string | Blob;
 type LocalStore = {
   inspections: Inspection[];
   photos: LocalPhoto[];
@@ -211,10 +212,10 @@ async function withPhotoStore<T>(
   });
 }
 
-async function putPhotoUri(id: string, uri: string) {
+async function putPhotoPayload(id: string, payload: PhotoPayload) {
   if (!supportsPhotoDb()) return false;
   try {
-    await withPhotoStore("readwrite", (store) => store.put(uri, id));
+    await withPhotoStore("readwrite", (store) => store.put(payload, id));
     return true;
   } catch (error) {
     if (
@@ -228,9 +229,16 @@ async function putPhotoUri(id: string, uri: string) {
   }
 }
 
-async function getPhotoUri(id: string) {
+async function getPhotoPayload(id: string) {
   if (!supportsPhotoDb()) return undefined;
-  return withPhotoStore<string | undefined>("readonly", (store) => store.get(id));
+  return withPhotoStore<PhotoPayload | undefined>("readonly", (store) =>
+    store.get(id),
+  );
+}
+
+function photoPayloadToUri(payload: PhotoPayload) {
+  if (typeof payload === "string") return payload;
+  return URL.createObjectURL(payload);
 }
 
 async function deletePhotoUris(ids: string[]) {
@@ -247,7 +255,7 @@ async function migratePhotoPayloads(store: LocalStore) {
   let changed = false;
   for (const photo of store.photos) {
     if (!photo.uri) continue;
-    await putPhotoUri(photo.id, photo.uri);
+    await putPhotoPayload(photo.id, dataUriToBlob(photo.uri));
     delete photo.uri;
     changed = true;
   }
@@ -486,11 +494,11 @@ function dataUriToBlob(uri: string) {
 
 async function uploadPhotoToRemote(run: Inspection, photo: Photo) {
   const storedPhoto = loadStore().photos.find((item) => item.id === photo.id);
-  const uri = storedPhoto?.uri || (await getPhotoUri(photo.id));
-  if (!uri)
+  const payload = storedPhoto?.uri || (await getPhotoPayload(photo.id));
+  if (!payload)
     throw new Error("Не удалось отправить фото в общую базу Garden: фото не найдено на этом устройстве.");
   const storagePath = `${run.cafeId}/${run.id}/${photo.id}.jpg`;
-  const blob = dataUriToBlob(uri);
+  const blob = typeof payload === "string" ? dataUriToBlob(payload) : payload;
   const upload = await fetch(
     `${supabaseUrl}/storage/v1/object/${photoBucket}/${storagePath}`,
     {
@@ -734,8 +742,9 @@ export const api = {
         throw new Error("В отправленном обходе нельзя заменить фото.");
       if (run.user.id !== user.id)
         throw new Error("Фото может добавить только автор черновика.");
-      const request = body as { questionId?: string; base64?: string };
-      if (!request.questionId || !request.base64)
+      const request = body as { questionId?: string; base64?: string; dataUri?: string };
+      const uri = request.dataUri || (request.base64 ? `data:image/jpeg;base64,${request.base64}` : "");
+      if (!request.questionId || !uri)
         throw new Error("Не удалось сохранить фото.");
       const question = questions(run).find((item) => item.id === request.questionId);
       if (!question) throw new Error("Вопрос не найден.");
@@ -747,8 +756,7 @@ export const api = {
       const replacedIds = run.photos
         .filter((item) => item.questionId === question.id)
         .map((item) => item.id);
-      const uri = `data:image/jpeg;base64,${request.base64}`;
-      const savedOutsideStore = await putPhotoUri(photo.id, uri);
+      const savedOutsideStore = await putPhotoPayload(photo.id, dataUriToBlob(uri));
       if (!savedOutsideStore) photo.uri = uri;
       run.photos = run.photos.filter((item) => item.questionId !== question.id);
       const usedBeforeSave = new Set(
@@ -773,8 +781,8 @@ export const api = {
     if (photoReadMatch && method === "GET") {
       const photo = store.photos.find((item) => item.id === photoReadMatch[1]);
       if (photo) {
-        const uri = photo.uri || (await getPhotoUri(photo.id));
-        if (uri) return { uri } as T;
+        const payload = photo.uri || (await getPhotoPayload(photo.id));
+        if (payload) return { uri: photoPayloadToUri(payload) } as T;
       }
       const remoteUri = await getRemotePhotoUri(photoReadMatch[1]);
       if (remoteUri) return { uri: remoteUri } as T;
