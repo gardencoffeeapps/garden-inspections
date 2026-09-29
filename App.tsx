@@ -142,8 +142,14 @@ async function blobToDataUri(blob: Blob) {
   });
 }
 
+function cameraPhotoToUri(value: string) {
+  const clean = value.trim();
+  if (/^(data:|blob:|file:|https?:)/i.test(clean)) return clean;
+  return `data:image/jpeg;base64,${clean.replace(/\s/g, "")}`;
+}
+
 async function compressPhotoForAudit(base64: string) {
-  const inputUri = `data:image/jpeg;base64,${base64}`;
+  const inputUri = cameraPhotoToUri(base64);
   if (Platform.OS !== "web" || typeof document === "undefined") return inputUri;
   try {
     const source = await fetch(inputUri).then((response) => response.blob());
@@ -1234,9 +1240,10 @@ function QuestionScreen({
       quality: 0.08,
       base64: true,
     });
-    if (!picture?.base64)
+    const cameraPhoto = picture?.base64 || picture?.uri;
+    if (!cameraPhoto)
       throw new Error("Не удалось получить фотографию. Попробуйте снова.");
-    const dataUri = await compressPhotoForAudit(picture.base64);
+    const dataUri = await compressPhotoForAudit(cameraPhoto);
     const photo = await api.call<Photo>(
       `/inspections/${run.id}/photos`,
       "POST",
