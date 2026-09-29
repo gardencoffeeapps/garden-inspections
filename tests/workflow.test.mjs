@@ -40,13 +40,28 @@ test("Cafe list contains Garden cafes and uses the standard checklist", () => {
   assert.equal(flatten(checklist).length, 136);
 });
 
-test("Interface copy describes the serverless web pilot", () => {
+test("Interface copy describes the web pilot with central Supabase sync", () => {
   const app = readFileSync(new URL("../App.tsx", import.meta.url), "utf8");
   const api = readFileSync(new URL("../src/api.ts", import.meta.url), "utf8");
   assert.match(app, /Сохраняем данные/);
-  assert.match(app, /Обход завершён и сохранён на этом устройстве/);
+  assert.match(app, /Обход завершён и отправлен в общую базу Garden/);
   assert.doesNotMatch(app, /адрес сервера|API-сервер|Server URL/i);
   assert.match(api, /localStorage/);
+  assert.match(api, /supabaseUrl/);
+  assert.match(api, /garden_inspections/);
   assert.match(api, /radaev_andrey/);
   assert.match(api, /baranyuk_kolya/);
+});
+
+
+
+
+test("Photo decoder tolerates mobile browser base64 variants", () => {
+  const api = readFileSync(new URL("../src/api.ts", import.meta.url), "utf8");
+  assert.match(api, /function normalizeBase64Payload/);
+  assert.match(api, /replace\(\/\\s\/g, ""\)/);
+  assert.match(api, /replace\(\/-\/g, "\+"\)/);
+  assert.match(api, /replace\(\/_\/g, "\/"\)/);
+  assert.match(api, /padEnd/);
+  assert.match(api, /Фото не удалось сохранить/);
 });
