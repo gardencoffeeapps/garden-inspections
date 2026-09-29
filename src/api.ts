@@ -494,11 +494,14 @@ function normalizeBase64Payload(payload: string) {
 }
 
 function dataUriToBlob(uri: string) {
-  const match = uri.match(/^data:([^;,]+)?(;base64)?,([\s\S]*)$/);
+  const trimmed = uri.trim();
+  const match = trimmed.match(/^data:([^;,]+)?(;base64)?,([\s\S]*)$/);
   if (!match) throw new Error("Не удалось подготовить фото для отправки.");
   const mime = match[1] || "image/jpeg";
   const isBase64 = !!match[2];
   const payload = match[3] || "";
+  const nestedPayload = payload.trim();
+  if (isBase64 && nestedPayload.startsWith("data:")) return dataUriToBlob(nestedPayload);
   let binary = "";
   try {
     binary = isBase64
