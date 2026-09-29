@@ -375,13 +375,13 @@ function requireRun(store: LocalStore, id: string, user: User) {
 }
 
 const supabaseUrl = "https://dftacohhdvkfnsyqfbgf.supabase.co";
-const supabaseKey = "sb_publishable_ltaNA7nnVozoSCOcZIjg";
+const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRmdGFjb2hoZHZrZm5zeXFmYmdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA1ODQyMTcsImV4cCI6MjEwNjE2MDIxN30.M-CPC7c15zRTOaQJ-OCz9O24cnUDnWWb1vxvloX3TzI";
 const photoBucket = "inspection-photos";
 const remoteAvailable =
   Platform.OS === "web" &&
   typeof fetch !== "undefined" &&
   supabaseUrl.startsWith("https://") &&
-  supabaseKey.startsWith("sb_publishable_");
+  supabaseKey.length > 80;
 
 type RemoteInspectionRow = {
   id: string;
@@ -797,6 +797,7 @@ export const api = {
     else await SecureStore.deleteItemAsync(sessionKey);
   },
 };
+
 
 
 
