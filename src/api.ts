@@ -569,6 +569,20 @@ async function getRemotePhotoUri(id: string) {
   }
 }
 
+async function syncLocalSubmittedRuns(store: LocalStore, user: User) {
+  if (!remoteAvailable) return;
+  const submittedRuns = store.inspections.filter(
+    (run) => run.status === "submitted" && canSeeRun(run, user),
+  );
+  for (const run of submittedRuns) {
+    try {
+      await syncInspectionToRemote(run);
+    } catch (error) {
+      console.warn("Garden inspection sync failed", error);
+    }
+  }
+}
+
 export const api = {
   base: "local",
   token: "",
@@ -605,6 +619,7 @@ export const api = {
         .map(clone) as T;
 
     if (path === "/inspections" && method === "GET") {
+      await syncLocalSubmittedRuns(store, user);
       const localRuns = store.inspections
         .filter((run) => allowedCafeIds(user).includes(run.cafeId))
         .filter((run) => user.role === "admin" || run.user.id === user.id);
@@ -782,6 +797,7 @@ export const api = {
     else await SecureStore.deleteItemAsync(sessionKey);
   },
 };
+
 
 
 
