@@ -25,7 +25,7 @@ const users: Array<User & { login: string; password: string }> = [
   {
     id: "pankova-anastasia",
     login: "pankova_anastasia",
-    password: "Garden-demo-2026!",
+    password: "Garden-Kalinka-4827!",
     name: "Панкова Анастасия",
     role: "manager",
     cafeIds: ["kalinka"],
@@ -33,7 +33,7 @@ const users: Array<User & { login: string; password: string }> = [
   {
     id: "sekachev-aleksey",
     login: "sekachev_aleksey",
-    password: "Garden-demo-2026!",
+    password: "Garden-Sovetskaya-9136!",
     name: "Секачев Алексей",
     role: "manager",
     cafeIds: ["sovetskaya"],
@@ -41,7 +41,7 @@ const users: Array<User & { login: string; password: string }> = [
   {
     id: "chemyakin-stas",
     login: "chemyakin_stas",
-    password: "Garden-demo-2026!",
+    password: "Garden-Okean-2749!",
     name: "Чемякин Стас",
     role: "manager",
     cafeIds: ["okean"],
@@ -49,7 +49,7 @@ const users: Array<User & { login: string; password: string }> = [
   {
     id: "romicheva-nadya",
     login: "romicheva_nadya",
-    password: "Garden-demo-2026!",
+    password: "Garden-Parus-6503!",
     name: "Ромичева Надя",
     role: "manager",
     cafeIds: ["parus"],
@@ -57,7 +57,7 @@ const users: Array<User & { login: string; password: string }> = [
   {
     id: "kalchakov-denis",
     login: "kalchakov_denis",
-    password: "Garden-demo-2026!",
+    password: "Garden-Evro-8214!",
     name: "Калчаков Денис",
     role: "manager",
     cafeIds: ["evropeyskiy"],
@@ -65,7 +65,7 @@ const users: Array<User & { login: string; password: string }> = [
   {
     id: "geynbikhner-katya",
     login: "geynbikhner_katya",
-    password: "Garden-demo-2026!",
+    password: "Garden-Novin-5391!",
     name: "Гейнбихнер Катя",
     role: "manager",
     cafeIds: ["novin"],
@@ -73,7 +73,7 @@ const users: Array<User & { login: string; password: string }> = [
   {
     id: "zabaluev-ivan",
     login: "zabaluev_ivan",
-    password: "Garden-demo-2026!",
+    password: "Garden-Panorama-7042!",
     name: "Забалуев Иван",
     role: "manager",
     cafeIds: ["panorama"],
@@ -81,7 +81,7 @@ const users: Array<User & { login: string; password: string }> = [
   {
     id: "baranyuk-kolya",
     login: "baranyuk_kolya",
-    password: "Garden-demo-2026!",
+    password: "Garden-Baranyuk-1685!",
     name: "Баранюк Коля",
     role: "manager",
     cafeIds: ["gazprom", "dramteatr"],
@@ -89,7 +89,7 @@ const users: Array<User & { login: string; password: string }> = [
   {
     id: "vorobev-denis",
     login: "vorobev_denis",
-    password: "Garden-demo-2026!",
+    password: "Garden-Preobr-3926!",
     name: "Воробьев Денис",
     role: "manager",
     cafeIds: ["preobrazhenskiy"],
@@ -97,7 +97,7 @@ const users: Array<User & { login: string; password: string }> = [
   {
     id: "nikovskaya-anya",
     login: "nikovskaya_anya",
-    password: "Garden-demo-2026!",
+    password: "Garden-Arsib-8570!",
     name: "Никовская Аня",
     role: "manager",
     cafeIds: ["arsib"],
@@ -105,7 +105,7 @@ const users: Array<User & { login: string; password: string }> = [
   {
     id: "radaev-andrey",
     login: "radaev_andrey",
-    password: "Garden-demo-2026!",
+    password: "Garden-Sverdlova-2468!",
     name: "Радаев Андрей",
     role: "manager",
     cafeIds: ["sverdlova"],
@@ -113,7 +113,7 @@ const users: Array<User & { login: string; password: string }> = [
   {
     id: "muhamedzyanova-irina",
     login: "muhamedzyanova_irina",
-    password: "Garden-demo-2026!",
+    password: "Garden-Vidnyy-6319!",
     name: "Мухамедзянова Ирина",
     role: "manager",
     cafeIds: ["vidnyy"],
@@ -121,7 +121,7 @@ const users: Array<User & { login: string; password: string }> = [
   {
     id: "ignatov-stas",
     login: "ignatov_stas",
-    password: "Garden-demo-2026!",
+    password: "Garden-Gagarina-5094!",
     name: "Игнатов Стас",
     role: "manager",
     cafeIds: ["gagarina"],
@@ -129,7 +129,7 @@ const users: Array<User & { login: string; password: string }> = [
   {
     id: "kiseleva-ekaterina",
     login: "kiseleva_ekaterina",
-    password: "Garden-demo-2026!",
+    password: "Garden-WorldClass-7752!",
     name: "Киселева Екатерина",
     role: "manager",
     cafeIds: ["world-class"],
@@ -137,7 +137,7 @@ const users: Array<User & { login: string; password: string }> = [
   {
     id: "kalinovskaya-adelina",
     login: "kalinovskaya_adelina",
-    password: "Garden-demo-2026!",
+    password: "Garden-Domashniy-3186!",
     name: "Калиновская Аделина",
     role: "manager",
     cafeIds: ["domashniy"],
@@ -145,7 +145,7 @@ const users: Array<User & { login: string; password: string }> = [
   {
     id: "admin",
     login: "admin",
-    password: "Garden-demo-2026!",
+    password: "Garden-Admin-9407!",
     name: "Руководитель",
     role: "admin",
     cafeIds: cafeList.map((c) => c.id),
@@ -592,6 +592,18 @@ async function syncInspectionToRemote(run: Inspection) {
   void syncPhotosToRemote(run);
 }
 
+async function getRemotePhotoStatus(id: string) {
+  if (!remoteAvailable) return "not-configured";
+  try {
+    const rows = await remoteFetch<Pick<RemotePhotoRow, "public_url">[]>(
+      `/rest/v1/garden_photos?select=public_url&photo_id=eq.${encodeURIComponent(id)}&limit=1`,
+    );
+    return rows[0]?.public_url ? "synced" : "pending";
+  } catch {
+    return "unknown";
+  }
+}
+
 async function getRemotePhotoUri(id: string) {
   if (!remoteAvailable) return undefined;
   try {
@@ -798,6 +810,14 @@ export const api = {
       saveStore(store);
       await deletePhotoUris(replacedIds);
       return { id: photo.id, questionId: photo.questionId, createdAt: photo.createdAt } as T;
+    }
+
+    const photoStatusMatch = path.match(/^\/photos\/([^?]+)\?format=status$/);
+    if (photoStatusMatch && method === "GET") {
+      const photo = store.photos.find((item) => item.id === photoStatusMatch[1]);
+      const local = !!photo || !!(await getPhotoPayload(photoStatusMatch[1]));
+      const remote = await getRemotePhotoStatus(photoStatusMatch[1]);
+      return { local, remote } as T;
     }
 
     const photoReadMatch = path.match(/^\/photos\/([^?]+)\?format=data$/);
