@@ -23,25 +23,29 @@ https://gardencoffeeapps.github.io/garden-inspections/
 ## Тестовые входы
 
 | Роль | Логин | Пароль | Доступ |
-|---|---|---|---|
-| Панкова Анастасия | `pankova_anastasia` | `Garden-demo-2026!` | Калинка |
-| Секачев Алексей | `sekachev_aleksey` | `Garden-demo-2026!` | Советская |
-| Чемякин Стас | `chemyakin_stas` | `Garden-demo-2026!` | Океан |
-| Ромичева Надя | `romicheva_nadya` | `Garden-demo-2026!` | Парус |
-| Калчаков Денис | `kalchakov_denis` | `Garden-demo-2026!` | Европейский |
-| Гейнбихнер Катя | `geynbikhner_katya` | `Garden-demo-2026!` | Новин |
-| Забалуев Иван | `zabaluev_ivan` | `Garden-demo-2026!` | Панорама |
-| Баранюк Коля | `baranyuk_kolya` | `Garden-demo-2026!` | Газпром, Драмтеатр |
-| Воробьев Денис | `vorobev_denis` | `Garden-demo-2026!` | Преображенский |
-| Никовская Аня | `nikovskaya_anya` | `Garden-demo-2026!` | Арсиб |
-| Радаев Андрей | `radaev_andrey` | `Garden-demo-2026!` | Свердлова |
-| Мухамедзянова Ирина | `muhamedzyanova_irina` | `Garden-demo-2026!` | Видный |
-| Игнатов Стас | `ignatov_stas` | `Garden-demo-2026!` | Гагарина |
-| Киселева Екатерина | `kiseleva_ekaterina` | `Garden-demo-2026!` | Ворлд Класс |
-| Калиновская Аделина | `kalinovskaya_adelina` | `Garden-demo-2026!` | Домашний |
-| Руководитель | `admin` | `Garden-demo-2026!` | Все кофейни на текущем устройстве |
+| --- | --- | --- | --- |
+| Панкова Анастасия | pankova_anastasia | Garden-Kalinka-4827! | Калинка |
+| Секачев Алексей | sekachev_aleksey | Garden-Sovetskaya-9136! | Советская |
+| Чемякин Стас | chemyakin_stas | Garden-Okean-2749! | Океан |
+| Ромичева Надя | romicheva_nadya | Garden-Parus-6503! | Парус |
+| Калчаков Денис | kalchakov_denis | Garden-Evro-8214! | Европейский |
+| Гейнбихнер Катя | geynbikhner_katya | Garden-Novin-5391! | Новин |
+| Забалуев Иван | zabaluev_ivan | Garden-Panorama-7042! | Панорама |
+| Баранюк Коля | baranyuk_kolya | Garden-Baranyuk-1685! | Газпром, Драмтеатр |
+| Воробьев Денис | vorobev_denis | Garden-Preobr-3926! | Преображенский |
+| Никовская Аня | nikovskaya_anya | Garden-Arsib-8570! | Арсиб |
+| Радаев Андрей | radaev_andrey | Garden-Sverdlova-2468! | Свердлова |
+| Мухамедзянова Ирина | muhamedzyanova_irina | Garden-Vidnyy-6319! | Видный |
+| Игнатов Стас | ignatov_stas | Garden-Gagarina-5094! | Гагарина |
+| Киселева Екатерина | kiseleva_ekaterina | Garden-WorldClass-7752! | Ворлд Класс |
+| Калиновская Аделина | kalinovskaya_adelina | Garden-Domashniy-3186! | Домашний |
+| Руководитель | admin | Garden-Admin-9407! | Все кофейни |
 
 Перед реальным пилотом пароль нужно заменить в `src/api.ts` или подключить внешний способ авторизации.
+
+## Инструкция для управляющих
+
+Короткая инструкция для запуска, входа, прохождения обхода и действий при ошибке связи: `docs/manager-instruction.md`.
 
 ## Запуск локально
 
