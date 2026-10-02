@@ -92,3 +92,14 @@ test("Manager credentials are individual and photo sync status is visible", () =
   assert.match(guide, /Если появилась ошибка связи/);
   assert.match(guide, /radaev_andrey/);
 });
+
+
+test("Managers with several cafes get an explicit cafe selection step", () => {
+  const app = readFileSync(new URL("../App.tsx", import.meta.url), "utf8");
+  const api = readFileSync(new URL("../src/api.ts", import.meta.url), "utf8");
+  assert.match(api, /cafeIds: \["gazprom", "dramteatr"\]/);
+  assert.match(app, /Выберите кофейню для обхода/);
+  assert.match(app, /ВЫБРАНА КОФЕЙНЯ/);
+  assert.match(app, /Начать: \$\{selectedCafeName\}/);
+  assert.match(app, /Продолжить: \$\{selectedCafeName\}/);
+});
