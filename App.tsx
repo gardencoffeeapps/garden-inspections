@@ -419,6 +419,7 @@ function Garden() {
     await refresh();
   }
   const cafeName = (id: string) => cafes.find((c) => c.id === id)?.name || id;
+  const selectedCafeName = selectedCafe ? cafeName(selectedCafe) : "кофейня не выбрана";
   const completed = run ? all(run).filter((q) => complete(q, run)).length : 0;
   const active = runs.find(
     (r) => r.status === "draft" && r.cafeId === selectedCafe,
@@ -637,21 +638,65 @@ function Garden() {
                       </View>
                       {user.role === "manager" ? (
                         <>
-                          <Text style={s.label}>Ваша кофейня</Text>
-                          <View style={s.wrap}>
-                            {cafes.map((c) => (
-                              <Button
-                                key={c.id}
-                                kind={
-                                  selectedCafe === c.id
-                                    ? "primary"
-                                    : "secondary"
-                                }
-                                onPress={() => setSelectedCafe(c.id)}
-                              >
-                                {c.name}
-                              </Button>
-                            ))}
+                          <Text style={s.label}>Выберите кофейню для обхода</Text>
+                          <View style={s.cafeChoiceGrid}>
+                            {cafes.map((c) => {
+                              const selected = selectedCafe === c.id;
+                              const draft = runs.find(
+                                (r) =>
+                                  r.status === "draft" &&
+                                  r.cafeId === c.id &&
+                                  r.user.id === user.id,
+                              );
+                              return (
+                                <Pressable
+                                  key={c.id}
+                                  accessibilityRole="button"
+                                  accessibilityState={{ selected }}
+                                  disabled={busy}
+                                  onPress={() => setSelectedCafe(c.id)}
+                                  style={[s.cafeChoice, selected && s.cafeChoiceSelected]}
+                                >
+                                  <View style={{ flex: 1, gap: 5 }}>
+                                    <Text
+                                      style={[
+                                        s.cardTitle,
+                                        selected && { color: C.white },
+                                      ]}
+                                    >
+                                      {c.name}
+                                    </Text>
+                                    <Text
+                                      style={[
+                                        s.footnote,
+                                        selected && { color: "#D7E5DC" },
+                                      ]}
+                                    >
+                                      {draft
+                                        ? `Есть черновик: ${draft.completed}/${draft.questionCount}`
+                                        : "Новый обход"}
+                                    </Text>
+                                  </View>
+                                  <Text
+                                    style={[
+                                      s.cafeChoiceMark,
+                                      selected && { color: C.lime },
+                                    ]}
+                                  >
+                                    {selected ? "✓" : "○"}
+                                  </Text>
+                                </Pressable>
+                              );
+                            })}
+                          </View>
+                          <View style={s.selectedCafeCard}>
+                            <Text style={s.eyebrow}>ВЫБРАНА КОФЕЙНЯ</Text>
+                            <Text style={s.cardTitle}>{selectedCafeName}</Text>
+                            <Text style={s.muted}>
+                              Обход будет создан или продолжен именно для этой
+                              точки. Если у вас несколько кофеен, сначала
+                              нажмите нужную карточку выше.
+                            </Text>
                           </View>
                           <View style={s.startCard}>
                             <View style={{ flex: 1, gap: 12 }}>
@@ -680,7 +725,9 @@ function Garden() {
                               style={s.startButton}
                             >
                               <Text style={s.startButtonText}>
-                                {active ? "Продолжить обход" : "Начать обход"} ↗
+                                {active
+                                  ? `Продолжить: ${selectedCafeName}`
+                                  : `Начать: ${selectedCafeName}`} ↗
                               </Text>
                             </Pressable>
                           </View>
@@ -1585,6 +1632,27 @@ const s = StyleSheet.create({
     gap: 12,
   },
   wrap: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
+  cafeChoiceGrid: { flexDirection: "row", flexWrap: "wrap", gap: 10 },
+  cafeChoice: {
+    width: "100%",
+    minHeight: 76,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: C.line,
+    backgroundColor: C.white,
+    padding: 16,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+  },
+  cafeChoiceSelected: { backgroundColor: C.green, borderColor: C.green },
+  cafeChoiceMark: { fontSize: 22, fontWeight: "700", color: C.muted },
+  selectedCafeCard: {
+    padding: 16,
+    borderRadius: 14,
+    backgroundColor: "#E9EFDF",
+    gap: 6,
+  },
   loginLayout: { gap: 22 },
   hero: {
     backgroundColor: C.green,
