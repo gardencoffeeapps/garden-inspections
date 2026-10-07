@@ -69,7 +69,7 @@ test("Photo decoder tolerates mobile browser base64 variants", () => {
 test("Corrupted cached photos cannot blank the app during migration", () => {
   const api = readFileSync(new URL("../src/api.ts", import.meta.url), "utf8");
   assert.match(api, /Garden skipped corrupted cached photo/);
-  assert.match(api, /catch \(error\) \{\n      console\.warn\("Garden skipped corrupted cached photo"/);
+  assert.match(api, /catch \(error\) \{\r?\n      console\.warn\("Garden skipped corrupted cached photo"/);
 });
 
 test("Camera photo handling avoids nested data URI decode failures", () => {
@@ -102,4 +102,13 @@ test("Managers with several cafes get an explicit cafe selection step", () => {
   assert.match(app, /ВЫБРАНА КОФЕЙНЯ/);
   assert.match(app, /Начать: \$\{selectedCafeName\}/);
   assert.match(app, /Продолжить: \$\{selectedCafeName\}/);
+});
+
+
+test("Multi-cafe manager assignments include the requested cafes", () => {
+  const api = readFileSync(new URL("../src/api.ts", import.meta.url), "utf8");
+  assert.match(api, /romicheva_nadya[\s\S]*cafeIds: \["parus", "melnikayte"\]/);
+  assert.match(api, /baranyuk_kolya[\s\S]*cafeIds: \["gazprom", "dramteatr"\]/);
+  assert.match(api, /kiseleva_ekaterina[\s\S]*cafeIds: \["world-class", "sofi-land"\]/);
+  assert.match(api, /radaev_andrey[\s\S]*cafeIds: \["sverdlova", "osipenko"\]/);
 });

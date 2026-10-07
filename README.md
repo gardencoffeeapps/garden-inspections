@@ -27,17 +27,17 @@ https://gardencoffeeapps.github.io/garden-inspections/
 | Панкова Анастасия | pankova_anastasia | Garden-Kalinka-4827! | Калинка |
 | Секачев Алексей | sekachev_aleksey | Garden-Sovetskaya-9136! | Советская |
 | Чемякин Стас | chemyakin_stas | Garden-Okean-2749! | Океан |
-| Ромичева Надя | romicheva_nadya | Garden-Parus-6503! | Парус |
+| Ромичева Надя | romicheva_nadya | Garden-Parus-6503! | Парус, Мельникайте |
 | Калчаков Денис | kalchakov_denis | Garden-Evro-8214! | Европейский |
 | Гейнбихнер Катя | geynbikhner_katya | Garden-Novin-5391! | Новин |
 | Забалуев Иван | zabaluev_ivan | Garden-Panorama-7042! | Панорама |
-| Баранюк Коля | baranyuk_kolya | Garden-Baranyuk-1685! | Газпром, Драмтеатр |
+| Баранюк Николай | baranyuk_kolya | Garden-Baranyuk-1685! | Газпром, Драмтеатр |
 | Воробьев Денис | vorobev_denis | Garden-Preobr-3926! | Преображенский |
 | Никовская Аня | nikovskaya_anya | Garden-Arsib-8570! | Арсиб |
-| Радаев Андрей | radaev_andrey | Garden-Sverdlova-2468! | Свердлова |
+| Радаев Андрей | radaev_andrey | Garden-Sverdlova-2468! | Свердлова, Осипенко |
 | Мухамедзянова Ирина | muhamedzyanova_irina | Garden-Vidnyy-6319! | Видный |
 | Игнатов Стас | ignatov_stas | Garden-Gagarina-5094! | Гагарина |
-| Киселева Екатерина | kiseleva_ekaterina | Garden-WorldClass-7752! | Ворлд Класс |
+| Киселева Екатерина | kiseleva_ekaterina | Garden-WorldClass-7752! | Ворлд Класс, Софи-лэнд |
 | Калиновская Аделина | kalinovskaya_adelina | Garden-Domashniy-3186! | Домашний |
 | Руководитель | admin | Garden-Admin-9407! | Все кофейни |
 

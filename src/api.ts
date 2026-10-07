@@ -52,7 +52,7 @@ const users: Array<User & { login: string; password: string }> = [
     password: "Garden-Parus-6503!",
     name: "Ромичева Надя",
     role: "manager",
-    cafeIds: ["parus"],
+    cafeIds: ["parus", "melnikayte"],
   },
   {
     id: "kalchakov-denis",
@@ -82,7 +82,7 @@ const users: Array<User & { login: string; password: string }> = [
     id: "baranyuk-kolya",
     login: "baranyuk_kolya",
     password: "Garden-Baranyuk-1685!",
-    name: "Баранюк Коля",
+    name: "Баранюк Николай",
     role: "manager",
     cafeIds: ["gazprom", "dramteatr"],
   },
@@ -108,7 +108,7 @@ const users: Array<User & { login: string; password: string }> = [
     password: "Garden-Sverdlova-2468!",
     name: "Радаев Андрей",
     role: "manager",
-    cafeIds: ["sverdlova"],
+    cafeIds: ["sverdlova", "osipenko"],
   },
   {
     id: "muhamedzyanova-irina",
@@ -132,7 +132,7 @@ const users: Array<User & { login: string; password: string }> = [
     password: "Garden-WorldClass-7752!",
     name: "Киселева Екатерина",
     role: "manager",
-    cafeIds: ["world-class"],
+    cafeIds: ["world-class", "sofi-land"],
   },
   {
     id: "kalinovskaya-adelina",
