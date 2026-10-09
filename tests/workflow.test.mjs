@@ -34,9 +34,10 @@ test("Approved checklist is preserved verbatim, including all photo flags", () =
 });
 
 test("Cafe list contains Garden cafes and uses the standard checklist", () => {
-  assert.equal(cafes.length, 19);
+  assert.equal(cafes.length, 20);
   assert(cafes.some((c) => c.id === "sverdlova" && c.name === "Garden · Свердлова"));
   assert(cafes.some((c) => c.id === "dramteatr" && c.name === "Garden · Драмтеатр"));
+  assert(cafes.some((c) => c.id === "moskovskaya" && c.name === "Garden · Московская"));
   assert.equal(flatten(checklist).length, 136);
 });
 
@@ -51,6 +52,7 @@ test("Interface copy describes the web pilot with central Supabase sync", () => 
   assert.match(api, /garden_inspections/);
   assert.match(api, /radaev_andrey/);
   assert.match(api, /baranyuk_kolya/);
+  assert.match(api, /kondrateva_arina/);
 });
 
 
@@ -111,4 +113,12 @@ test("Multi-cafe manager assignments include the requested cafes", () => {
   assert.match(api, /baranyuk_kolya[\s\S]*cafeIds: \["gazprom", "dramteatr"\]/);
   assert.match(api, /kiseleva_ekaterina[\s\S]*cafeIds: \["world-class", "sofi-land"\]/);
   assert.match(api, /radaev_andrey[\s\S]*cafeIds: \["sverdlova", "osipenko"\]/);
+});
+
+
+test("New Moscow cafe manager has access to the Moscow cafe", () => {
+  const api = readFileSync(new URL("../src/api.ts", import.meta.url), "utf8");
+  const guide = readFileSync(new URL("../docs/manager-instruction.md", import.meta.url), "utf8");
+  assert.match(api, /kondrateva_arina[\s\S]*Garden-Moskovskaya-4268![\s\S]*cafeIds: \["moskovskaya"\]/);
+  assert.match(guide, /Кондратьева Арина[\s\S]*kondrateva_arina[\s\S]*Московская/);
 });

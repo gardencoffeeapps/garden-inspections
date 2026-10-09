@@ -143,6 +143,14 @@ const users: Array<User & { login: string; password: string }> = [
     cafeIds: ["domashniy"],
   },
   {
+    id: "kondrateva-arina",
+    login: "kondrateva_arina",
+    password: "Garden-Moskovskaya-4268!",
+    name: "Кондратьева Арина",
+    role: "manager",
+    cafeIds: ["moskovskaya"],
+  },
+  {
     id: "admin",
     login: "admin",
     password: "Garden-Admin-9407!",

@@ -39,6 +39,7 @@ https://gardencoffeeapps.github.io/garden-inspections/
 | Игнатов Стас | ignatov_stas | Garden-Gagarina-5094! | Гагарина |
 | Киселева Екатерина | kiseleva_ekaterina | Garden-WorldClass-7752! | Ворлд Класс, Софи-лэнд |
 | Калиновская Аделина | kalinovskaya_adelina | Garden-Domashniy-3186! | Домашний |
+| Кондратьева Арина | kondrateva_arina | Garden-Moskovskaya-4268! | Московская |
 | Руководитель | admin | Garden-Admin-9407! | Все кофейни |
 
 Перед реальным пилотом пароль нужно заменить в `src/api.ts` или подключить внешний способ авторизации.

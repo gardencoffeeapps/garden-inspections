@@ -93,5 +93,10 @@
     "name": "Garden · Домашний",
     "id": "domashniy",
     "address": ""
+  },
+  {
+    "name": "Garden · Московская",
+    "id": "moskovskaya",
+    "address": ""
   }
 ]
